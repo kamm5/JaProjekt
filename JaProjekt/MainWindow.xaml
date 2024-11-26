@@ -7,6 +7,19 @@
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
     <Grid>
-
+        <Image Name="ImageViewer" HorizontalAlignment="Left" VerticalAlignment="Top" 
+               Margin="225,24,0,0" Width="540" Height="360" Stretch="Uniform">
+            <UIElement.RenderTransform>
+                <TransformGroup>
+                    <ScaleTransform/>
+                    <SkewTransform/>
+                    <RotateTransform/>
+                    <TranslateTransform/>
+                </TransformGroup>
+            </UIElement.RenderTransform>
+        </Image>
+        <Button Content="Wybierz plik" Width="150" Height="50" 
+                HorizontalAlignment="Left" VerticalAlignment="Top" 
+                Click="PickFileButton_Click" Margin="48,62,0,0"/>
     </Grid>
 </Window>
