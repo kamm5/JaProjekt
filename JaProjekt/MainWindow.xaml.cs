@@ -1,0 +1,34 @@
+﻿using System.Runtime.InteropServices;
+using System.Text;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Data;
+using System.Windows.Documents;
+using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
+using System.Windows.Navigation;
+using System.Windows.Shapes;
+
+namespace JaProjekt
+{
+    /// <summary>
+    /// Interaction logic for MainWindow.xaml
+    /// </summary>
+    public partial class MainWindow : Window
+    {
+        [DllImport(@"C:\Users\Kamil\source\repos\JaProjekt\x64\Debug\JaAsm.dll")]
+        static extern int MyProc1(int a, int b);
+
+        [DllImport(@"C:\Users\Kamil\source\repos\JaProjekt\x64\Debug\JaCpp.dll")]
+        static extern int Myproc(int a, int b);
+
+        public MainWindow()
+        {
+            InitializeComponent();
+            int x = 5, y = 3;
+            int retVal = Myproc(x, y);
+            MessageBox.Show(retVal.ToString());
+        }
+    }
+}
