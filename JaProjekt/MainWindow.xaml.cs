@@ -17,17 +17,17 @@ namespace JaProjekt
     /// </summary>
     public partial class MainWindow : Window
     {
-        [DllImport(@"C:\Users\Kamil\source\repos\JaProjekt\x64\Debug\JaAsm.dll")]
+        [DllImport(@"..\..\..\..\..\x64\Debug\JaAsm.dll")]
         static extern int MyProc1(int a, int b);
 
-        [DllImport(@"C:\Users\Kamil\source\repos\JaProjekt\x64\Debug\JaCpp.dll")]
+        [DllImport(@"..\..\..\..\..\x64\Debug\JaCpp.dll")]
         static extern int Myproc(int a, int b);
 
         public MainWindow()
         {
             InitializeComponent();
             int x = 5, y = 3;
-            int retVal = Myproc(x, y);
+            int retVal = MyProc1(x, y);
             MessageBox.Show(retVal.ToString());
         }
     }
