@@ -10,17 +10,18 @@ int Myproc(int a, int b)
 }
 
 extern "C" __declspec(dllexport)
-void Vignette(unsigned char* pixelArray, double* pixelArrayMask, int width, int height, double force)
+void Vignette(unsigned char* pixelArray, double* pixelArrayMask, int width, int height, double force, double vignetteRadius)
 {
 	int centerX = width / 2;
 	int centerY = height / 2;
 	div_t wynik;
-	double promien = sqrt(pow(width, 2) + pow(height, 2));
+	double imageRadius = sqrt(pow(width, 2) + pow(height, 2));
 
 	for (int i = 0; i < (width * height); i++)
 	{
 		wynik = div(i, width);
-		pixelArrayMask[i] = 1 - pow((sqrt(pow(wynik.rem - centerX, 2) + pow(wynik.quot - centerY, 2))) / promien, force);
+		//pixelArrayMask[i] = 1 - pow((sqrt(pow(wynik.rem - centerX, 2) + pow(wynik.quot - centerY, 2))) / imageRadius, force);
+		pixelArrayMask[i] = 1 / (1 + pow(2.71828182845904, force * (((sqrt(pow(wynik.rem - centerX, 2) + pow(wynik.quot - centerY, 2))) / imageRadius) - vignetteRadius)));
 	}
 
 	for (int i = 0; i < width * height * 3; ++i)

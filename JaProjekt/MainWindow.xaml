@@ -5,10 +5,10 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:JaProjekt"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        Title="MainWindow" Height="720" Width="1280">
     <Grid>
         <Image Name="ImageViewer" HorizontalAlignment="Left" VerticalAlignment="Top" 
-               Margin="225,24,0,0" Width="540" Height="360" Stretch="Uniform">
+               Margin="340,40,0,0" Width="800" Height="600" Stretch="Uniform">
             <UIElement.RenderTransform>
                 <TransformGroup>
                     <ScaleTransform/>
@@ -18,8 +18,45 @@
                 </TransformGroup>
             </UIElement.RenderTransform>
         </Image>
-        <Button Content="Wybierz plik" Width="150" Height="50" 
+        
+        <Button Content="Wybierz plik" Width="150" Height="30" 
                 HorizontalAlignment="Left" VerticalAlignment="Top" 
                 Click="PickFileButton_Click" Margin="48,62,0,0"/>
+        
+        <Button Content="Zatwierdź" Width="150" Height="30" 
+                HorizontalAlignment="Left" VerticalAlignment="Top" 
+                Click="ConfirmButton_Click" Margin="48,258,0,0"/>
+        
+        <Slider x:Name="forceControl"
+                Minimum="0" 
+                Maximum="30" 
+                Value="5"
+                TickFrequency="0.25"
+                IsSnapToTickEnabled="True"
+                HorizontalAlignment="Left"
+                VerticalAlignment="Top"
+                Width="200" Margin="23,105,0,0" />
+        
+        <TextBlock Text="{Binding ElementName=forceControl, Path=Value}" 
+                   VerticalAlignment="Top"
+                   HorizontalAlignment="Left"
+                   Margin="228,103,0,0" 
+                   FontSize="16" />
+
+        <Slider x:Name="radiusControl"
+                Minimum="0" 
+                Maximum="1" 
+                Value="0.4"
+                TickFrequency="0.01"
+                IsSnapToTickEnabled="True"
+                HorizontalAlignment="Left"
+                VerticalAlignment="Top"
+                Width="200" Margin="23,150,0,0" />
+
+        <TextBlock Text="{Binding ElementName=radiusControl, Path=Value}" 
+                   VerticalAlignment="Top"
+                   HorizontalAlignment="Left"
+                   Margin="228,148,0,0" 
+                   FontSize="16" />
     </Grid>
 </Window>
