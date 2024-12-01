@@ -18,25 +18,25 @@
                 </TransformGroup>
             </UIElement.RenderTransform>
         </Image>
-        
+
         <Button Content="Wybierz plik" Width="150" Height="30" 
                 HorizontalAlignment="Left" VerticalAlignment="Top" 
                 Click="PickFileButton_Click" Margin="48,62,0,0"/>
-        
+
         <Button Content="Zatwierdź" Width="150" Height="30" 
                 HorizontalAlignment="Left" VerticalAlignment="Top" 
                 Click="ConfirmButton_Click" Margin="48,258,0,0"/>
-        
+
         <Slider x:Name="forceControl"
                 Minimum="0" 
                 Maximum="30" 
-                Value="5"
+                Value="10"
                 TickFrequency="0.25"
                 IsSnapToTickEnabled="True"
                 HorizontalAlignment="Left"
                 VerticalAlignment="Top"
                 Width="200" Margin="23,105,0,0" />
-        
+
         <TextBlock Text="{Binding ElementName=forceControl, Path=Value}" 
                    VerticalAlignment="Top"
                    HorizontalAlignment="Left"
@@ -46,7 +46,7 @@
         <Slider x:Name="radiusControl"
                 Minimum="0" 
                 Maximum="1" 
-                Value="0.4"
+                Value="0.25"
                 TickFrequency="0.01"
                 IsSnapToTickEnabled="True"
                 HorizontalAlignment="Left"
@@ -58,5 +58,27 @@
                    HorizontalAlignment="Left"
                    Margin="228,148,0,0" 
                    FontSize="16" />
+
+        <Slider x:Name="threadControl"
+                Minimum="1" 
+                Maximum="64" 
+                Value="1"
+                TickFrequency="1"
+                IsSnapToTickEnabled="True"
+                HorizontalAlignment="Left"
+                VerticalAlignment="Top"
+                Width="200" Margin="23,195,0,0" />
+
+        <TextBlock Text="{Binding ElementName=threadControl, Path=Value}" 
+                   VerticalAlignment="Top"
+                   HorizontalAlignment="Left"
+                   Margin="228,193,0,0" 
+                   FontSize="16" />
+
+        <StackPanel HorizontalAlignment="Left" VerticalAlignment="Top" Margin="38,335,0,0">
+            <TextBlock Text="Czas wykonania funkcji:" FontSize="16" Margin="0,0,0,10"/>
+            <TextBlock x:Name="ExecutionTimeTextBlock" FontSize="24" FontWeight="Bold" HorizontalAlignment="Center"/>
+        </StackPanel>
+        
     </Grid>
 </Window>

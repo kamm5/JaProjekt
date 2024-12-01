@@ -1,6 +1,8 @@
 ﻿using Microsoft.Win32;
 using System;
+using System.Diagnostics;
 using System.Drawing;
+using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -14,6 +16,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Media.Media3D;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace JaProjekt
 {
@@ -29,14 +32,16 @@ namespace JaProjekt
         static extern int Myproc(int a, int b);
 
         [DllImport(@"..\..\..\..\..\x64\Debug\JaCpp.dll")]
-        static extern void Vignette(byte[] pixelArray, double[] pixelArrayMask, int width, int height, double force, double vignetteRadius);
+        static extern void Vignette(byte[] pixelArray, double[] pixelArrayMask, int width, int height, double force, double vignetteRadius, int numberThread, int maxThread);
 
-        public byte[] pixelArray;
-        public double[] pixelArrayMask;
+        //public byte[] pixelArray;
+        //public double[] pixelArrayMask;
         public Bitmap bitmapInput;
         public Bitmap bitmapOutput;
-        public double force;
-        public double radius;
+        public double force = 10;
+        public double radius = 0.25;
+        public int numberThread = 1;
+        Stopwatch stopwatch;
 
         private void ForceControl_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
@@ -48,21 +53,50 @@ namespace JaProjekt
             radius = radiusControl.Value;
         }
 
+        private void ThreadControl_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            numberThread = (int)threadControl.Value;
+        }
+
+        private BitmapImage ConvertBitmapToImageSource(Bitmap bitmap)
+        {
+            using (MemoryStream memory = new MemoryStream())
+            {
+                // Zapisz bitmapę do strumienia
+                bitmap.Save(memory, System.Drawing.Imaging.ImageFormat.Bmp);
+                memory.Position = 0;
+
+                // Wczytaj strumień do BitmapImage
+                BitmapImage bitmapImage = new BitmapImage();
+                bitmapImage.BeginInit();
+                bitmapImage.StreamSource = memory;
+                bitmapImage.CacheOption = BitmapCacheOption.OnLoad;
+                bitmapImage.EndInit();
+                bitmapImage.Freeze(); // Zamrożenie obrazu dla wątku UI
+
+                return bitmapImage;
+            }
+        }
+
         private void ConfirmButton_Click(object sender, RoutedEventArgs e)
         {
-            if (pixelArray != null)
+            if (bitmapInput != null)
             {
-                Vignette(pixelArray, pixelArrayMask, bitmapInput.Width, bitmapInput.Height, force, radius);
+                byte[] pixelArray = ConvertBitmapToRGBArray(bitmapInput);
+                double[] pixelArrayMask = new double[bitmapInput.Height * bitmapInput.Width];
+                stopwatch = Stopwatch.StartNew();
+                Parallel.For(0, numberThread, i =>
+                {
+                    Vignette(pixelArray, pixelArrayMask, bitmapInput.Width, bitmapInput.Height, force, radius, i, numberThread);
+                });
+                //Vignette(pixelArray, pixelArrayMask, bitmapInput.Width, bitmapInput.Height, force, radius, 3, 3);
+                stopwatch.Stop();
+                ExecutionTimeTextBlock.Text = $"{stopwatch.ElapsedMilliseconds} ms";
 
                 bitmapOutput = ConvertRGBArrayToBitmap(pixelArray, bitmapInput.Width, bitmapInput.Height);
                 bitmapOutput.Save("output.bmp", System.Drawing.Imaging.ImageFormat.Bmp);
 
-                BitmapImage bitmapImage = new BitmapImage();
-                bitmapImage.BeginInit();
-                bitmapImage.UriSource = new Uri(Environment.CurrentDirectory+"\\output.bmp");
-                bitmapImage.CacheOption = BitmapCacheOption.OnLoad;
-                bitmapImage.EndInit();
-                ImageViewer.Source = bitmapImage;
+                ImageViewer.Source = ConvertBitmapToImageSource(bitmapOutput);
             }
         }
 
@@ -79,16 +113,9 @@ namespace JaProjekt
 
                 try
                 {
-                    BitmapImage bitmapImage = new BitmapImage();
-                    bitmapImage.BeginInit();
-                    bitmapImage.UriSource = new Uri(filePath);
-                    bitmapImage.CacheOption = BitmapCacheOption.OnLoad;
-                    bitmapImage.EndInit();
-                    ImageViewer.Source = bitmapImage;
+                    ImageViewer.Source = new BitmapImage(new Uri(filePath));
 
                     bitmapInput = new Bitmap(filePath);
-                    pixelArray = ConvertBitmapToRGBArray(bitmapInput);
-                    pixelArrayMask = new double[bitmapInput.Height * bitmapInput.Width];
                 }
                 catch (Exception ex)
                 {
@@ -179,6 +206,7 @@ namespace JaProjekt
             InitializeComponent();
             forceControl.ValueChanged += ForceControl_ValueChanged;
             radiusControl.ValueChanged += RadiusControl_ValueChanged;
+            threadControl.ValueChanged += ThreadControl_ValueChanged;
             //int x = 5, y = 3;
             //int retVal = MyProc1(x, y);
             //MessageBox.Show(retVal.ToString());
