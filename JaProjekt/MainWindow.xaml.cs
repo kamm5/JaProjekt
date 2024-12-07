@@ -34,6 +34,9 @@ namespace JaProjekt
         [DllImport(@"..\..\..\..\..\x64\Debug\JaCpp.dll")]
         static extern void Vignette(byte[] pixelArray, double[] pixelArrayMask, int width, int height, double force, double vignetteRadius, int numberThread, int maxThread);
 
+        [DllImport(@"..\..\..\..\..\x64\Debug\JaAsm.dll")]
+        static extern void VignetteAsm(byte[] pixelArray, double[] pixelArrayMask, int width, int height, double force, double vignetteRadius, int numberThread, int maxThread);
+
         //public byte[] pixelArray;
         //public double[] pixelArrayMask;
         public Bitmap bitmapInput;
@@ -85,18 +88,21 @@ namespace JaProjekt
                 byte[] pixelArray = ConvertBitmapToRGBArray(bitmapInput);
                 double[] pixelArrayMask = new double[bitmapInput.Height * bitmapInput.Width];
                 stopwatch = Stopwatch.StartNew();
+                //MessageBox.Show(bitmapInput.Width.ToString());
                 Parallel.For(0, numberThread, i =>
                 {
-                    Vignette(pixelArray, pixelArrayMask, bitmapInput.Width, bitmapInput.Height, force, radius, i, numberThread);
+                    //Vignette(pixelArray, pixelArrayMask, bitmapInput.Width, bitmapInput.Height, force, radius, i, numberThread);
+                    VignetteAsm(pixelArray, pixelArrayMask, bitmapInput.Width, bitmapInput.Height, force, radius, i, numberThread);
                 });
+                //MessageBox.Show(bitmapInput.Width.ToString());
                 //Vignette(pixelArray, pixelArrayMask, bitmapInput.Width, bitmapInput.Height, force, radius, 3, 3);
                 stopwatch.Stop();
-                ExecutionTimeTextBlock.Text = $"{stopwatch.ElapsedMilliseconds} ms";
+                //ExecutionTimeTextBlock.Text = $"{stopwatch.ElapsedMilliseconds} ms";
 
-                bitmapOutput = ConvertRGBArrayToBitmap(pixelArray, bitmapInput.Width, bitmapInput.Height);
-                bitmapOutput.Save("output.bmp", System.Drawing.Imaging.ImageFormat.Bmp);
+                //bitmapOutput = ConvertRGBArrayToBitmap(pixelArray, bitmapInput.Width, bitmapInput.Height);
+                //bitmapOutput.Save("output.bmp", System.Drawing.Imaging.ImageFormat.Bmp);
 
-                ImageViewer.Source = ConvertBitmapToImageSource(bitmapOutput);
+                //ImageViewer.Source = ConvertBitmapToImageSource(bitmapOutput);
             }
         }
 

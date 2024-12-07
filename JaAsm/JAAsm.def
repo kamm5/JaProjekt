@@ -1,2 +1,4 @@
 LIBRARY JAAsm
-EXPORTS MyProc1
+EXPORTS 
+MyProc1
+VignetteAsm
