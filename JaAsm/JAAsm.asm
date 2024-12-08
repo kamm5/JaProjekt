@@ -2,11 +2,6 @@
 	one   real8  1.0
 
 .code
-MyProc1 proc
-add RCX, RDX
-mov RAX, RCX
-ret
-MyProc1 endp
 
 ; ZMIENNE
 ; rcx pixelArray
@@ -17,30 +12,32 @@ MyProc1 endp
 ; r11 maxThread
 ; r12 centerX
 ; r13 centerY
-; r14
-; r15
+; r14 pixelArrayMask
+; r15 pixelArray
 ; xmm0 force
 ; xmm1 vignetteRadius
 ; xmm2 imageRadius
 
 VignetteAsm proc
-;mov al, byte ptr [rcx+1]
 
+				;zapisanie rejestrow
 push r10
 push r11
 push r12
 push r13
 push r14
 push r15
+push rdi
+push rsi
 push rax
 push rbx
 push rcx
 push rdx
 
-mov r11, [rsp + 8*18]
-mov r10, [rsp + 8*17]
-movsd xmm1, qword ptr [rsp + 8*16]
-movsd xmm0, qword ptr [rsp + 8*15]	; wczytywanie argumentow
+mov r11, [rsp + 8*20]
+mov r10, [rsp + 8*19]
+movsd xmm1, qword ptr [rsp + 8*18]
+movsd xmm0, qword ptr [rsp + 8*17]	; wczytywanie argumentow
 
 
 mov rdx, 0			; int centerX = width / 2;
@@ -87,11 +84,12 @@ push r14
 cvtsi2sd xmm3, r12		; centerX w xmm3
 cvtsi2sd xmm4, r13		; centerY w xmm4
 
-loop_start1:
-	cmp rsi, rdi
-	jge loop_end1
+loop_pixelMask_start:
 
-	; wynik = div(i, width)
+	cmp rsi, rdi
+	jge loop_pixelMask_end
+
+						; wynik = div(i, width)
 	mov rax, rsi		; dzielenie z reszta i
 	xor rdx, rdx
 	div r8
@@ -114,9 +112,10 @@ loop_start1:
 	addsd xmm6, xmm5	; 2 wykonanie Taylora (1+x)
 	movsd xmm7, xmm5	; ustawienie mno¿nika na x
 
-	loop_start2:
-		cmp rbx, 10		; wykonuj do osiagniecia 10
-		je loop_end2
+	loop_taylor_start:
+
+		cmp rbx, 10			; wykonuj do osiagniecia 10
+		je loop_taylor_end
 
 		mulsd xmm7, xmm5	; kolejna potega x
 		mul rbx
@@ -126,22 +125,20 @@ loop_start1:
 		addsd xmm6, xmm9	; dodanie kolejnego wykonania Taylora do zmiennej
 
 		inc rbx				; inkrementacja licznika
-		jmp loop_start2
-	loop_end2:
+		jmp loop_taylor_start
 
-	addsd xmm6, [one]		; xmm6 = 1 + pow(2.71828182845904, force * (((sqrt(pow(wynik.rem - centerX, 2) + pow(wynik.quot - centerY, 2))) / imageRadius) - vignetteRadius))
+	loop_taylor_end:
+
+	addsd xmm6, [one]	; xmm6 = 1 + pow(2.71828182845904, force * (((sqrt(pow(wynik.rem - centerX, 2) + pow(wynik.quot - centerY, 2))) / imageRadius) - vignetteRadius))
 	movsd xmm5, [one]
-	divsd xmm5, xmm6		; xmm5 = 1 / (1 + pow(2.71828182845904, force * (((sqrt(pow(wynik.rem - centerX, 2) + pow(wynik.quot - centerY, 2))) / imageRadius) - vignetteRadius)))
-
+	divsd xmm5, xmm6	; xmm5 = 1 / (1 + pow(2.71828182845904, force * (((sqrt(pow(wynik.rem - centerX, 2) + pow(wynik.quot - centerY, 2))) / imageRadius) - vignetteRadius)))
 	
-	movsd qword ptr [r14 + rsi], xmm5
-
-;	movsd qword ptr [r14 + rsi], xmm3
+	movsd qword ptr [r14 + rsi * 8], xmm5
 
 	inc rsi
-	jmp loop_start1
+	jmp loop_pixelMask_start
 
-loop_end1:
+loop_pixelMask_end:
 
 					; Oblicz pocz¹tkow¹ wartoœæ pêtli
 mov rax, R8			; rax = width
@@ -163,29 +160,35 @@ imul rax, R10		; rax = (numberThread + 1) * ((width * height) / maxThread)
 dec R10				; Przywróæ R10
 mov rdi, rax		; rdi = koñcowa wartoœæ pêtli
 
-loop_start3:
+loop_setPixel_start:
+
 	cmp rsi, rdi
-	jge loop_end3
+	jge loop_setPixel_end
 
 	mov rax, rsi
 	mov rcx, 3
-	div rcx
-	movsd xmm5, qword ptr [r14 + rax]
-	movzx rbx, byte ptr [r15 + rsi]
+	xor rdx, rdx
+	div rcx									; ustawienie indeksu/3
+	movsd xmm5, qword ptr [r14 + rax * 8]	; odczytanie pixelArrayMask
+	mov bl, byte ptr [r15 + rsi]			; odczytanie pixelArray
+	movzx rbx, bl							; konwersja na rbx
 	cvtsi2sd xmm6, rbx
-	mulsd xmm6, xmm5
+	mulsd xmm6, xmm5						; pixelArray*=pixelArrayMask
 	cvttsd2si rbx, xmm6
-	mov byte ptr [r15 + rsi], al
+	mov byte ptr [r15 + rsi], bl			; zapis pixelArray
 
-	inc rsi
-	jmp loop_start3
+	inc rsi									; i++
+	jmp loop_setPixel_start
 
-loop_end3:
+loop_setPixel_end:
 
+			; przywrocenie rejestrow
 pop rdx
 pop rcx
 pop rbx
 pop rax
+pop rsi
+pop rdi
 pop r15
 pop r14
 pop r13
