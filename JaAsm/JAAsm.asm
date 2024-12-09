@@ -1,5 +1,6 @@
 .data
-	one   real8  1.0
+	one			real8	1.0
+	zero		real8	0.0
 
 .code
 
@@ -114,7 +115,7 @@ loop_pixelMask_start:
 
 	loop_taylor_start:
 
-		cmp rbx, 10			; wykonuj do osiagniecia 10
+		cmp rbx, 20			; wykonuj do osiagniecia 20
 		je loop_taylor_end
 
 		mulsd xmm7, xmm5	; kolejna potega x
@@ -128,6 +129,12 @@ loop_pixelMask_start:
 		jmp loop_taylor_start
 
 	loop_taylor_end:
+							; obsluzenie bledu Taylora
+	movsd xmm7, [zero]
+	ucomisd xmm6, xmm7		; sprawdz czy xmm6 < 0, jesli tak to xmm6 = 0
+	jae skip_set_to_zero
+	movsd xmm6, xmm7
+	skip_set_to_zero:
 
 	addsd xmm6, [one]	; xmm6 = 1 + pow(2.71828182845904, force * (((sqrt(pow(wynik.rem - centerX, 2) + pow(wynik.quot - centerY, 2))) / imageRadius) - vignetteRadius))
 	movsd xmm5, [one]

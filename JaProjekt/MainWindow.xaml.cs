@@ -23,7 +23,7 @@ namespace JaProjekt
 
         public Bitmap bitmapInput;
         public Bitmap bitmapOutput;
-        public double force = 10;
+        public double force = 15;
         public double radius = 0.25;
         public int numberThread = 1;
         Stopwatch stopwatch;
@@ -170,7 +170,48 @@ namespace JaProjekt
 
         private void AutoTest_Click(object sender, RoutedEventArgs e)
         {
+            double testForce = 10;
+            double testRadius = 0.25;
+            Bitmap bitmapTest = null;
+            Stopwatch testStopwatchAsm;
+            Stopwatch testStopwatchCpp;
+            try
+            {
+                bitmapTest = new Bitmap(Environment.CurrentDirectory + "\\test.bmp");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Błąd podczas wczytywania obrazu testowego",
+                                "Błąd", MessageBoxButton.OK);
+            }
+            if (bitmapTest != null)
+            {
+                byte[] pixelArray = ConvertBitmapToRGBArray(bitmapTest);
+                double[] pixelArrayMask = new double[bitmapTest.Height * bitmapTest.Width];
 
+                using (StreamWriter writer = new StreamWriter("TestFile.txt"))
+                {
+                    writer.WriteLine("testNumberThread StopwatchAsm(ms) StopwatchCpp(ms)");
+                    for (int testNumberThread = 1; testNumberThread <= 64; testNumberThread++)
+                    {
+                        testStopwatchAsm = Stopwatch.StartNew();
+                        Parallel.For(0, numberThread, i =>
+                        {
+                            VignetteAsm(pixelArray, pixelArrayMask, bitmapTest.Width, bitmapTest.Height, testForce, testRadius, i, testNumberThread);
+                        });
+                        testStopwatchAsm.Stop();
+
+                        testStopwatchCpp = Stopwatch.StartNew();
+                        Parallel.For(0, numberThread, i =>
+                        {
+                            VignetteCpp(pixelArray, pixelArrayMask, bitmapTest.Width, bitmapTest.Height, testForce, testRadius, i, testNumberThread);
+                        });
+                        testStopwatchCpp.Stop();
+
+                        writer.WriteLine($"{testNumberThread} {testStopwatchAsm.ElapsedMilliseconds} {testStopwatchCpp.ElapsedMilliseconds}");
+                    }
+                }
+            }
         }
 
         public MainWindow()

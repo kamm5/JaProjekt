@@ -30,7 +30,7 @@
         <Slider x:Name="forceControl"
                 Minimum="0" 
                 Maximum="30" 
-                Value="10"
+                Value="15"
                 TickFrequency="0.25"
                 IsSnapToTickEnabled="True"
                 HorizontalAlignment="Left"
