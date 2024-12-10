@@ -67,12 +67,14 @@ namespace JaProjekt
             {
                 byte[] pixelArray = ConvertBitmapToRGBArray(bitmapInput);
                 double[] pixelArrayMask = new double[bitmapInput.Height * bitmapInput.Width];
+                int height = bitmapInput.Height;
+                int width = bitmapInput.Width;
                 if (CheckBoxASM.IsChecked == true)
                 {
                     stopwatch = Stopwatch.StartNew();
                     Parallel.For(0, numberThread, i =>
                     {
-                        VignetteAsm(pixelArray, pixelArrayMask, bitmapInput.Width, bitmapInput.Height, force, radius, i, numberThread);
+                        VignetteAsm(pixelArray, pixelArrayMask, width, height, force, radius, i, numberThread);
                     });
                     stopwatch.Stop();
                 }
@@ -81,7 +83,7 @@ namespace JaProjekt
                     stopwatch = Stopwatch.StartNew();
                     Parallel.For(0, numberThread, i =>
                     {
-                        VignetteCpp(pixelArray, pixelArrayMask, bitmapInput.Width, bitmapInput.Height, force, radius, i, numberThread);
+                        VignetteCpp(pixelArray, pixelArrayMask, width, height, force, radius, i, numberThread);
                     });
                     stopwatch.Stop();
                 }
@@ -188,6 +190,8 @@ namespace JaProjekt
             {
                 byte[] pixelArray = ConvertBitmapToRGBArray(bitmapTest);
                 double[] pixelArrayMask = new double[bitmapTest.Height * bitmapTest.Width];
+                int height = bitmapInput.Height;
+                int width = bitmapInput.Width;
 
                 using (StreamWriter writer = new StreamWriter("TestFile.txt"))
                 {
@@ -197,14 +201,14 @@ namespace JaProjekt
                         testStopwatchAsm = Stopwatch.StartNew();
                         Parallel.For(0, numberThread, i =>
                         {
-                            VignetteAsm(pixelArray, pixelArrayMask, bitmapTest.Width, bitmapTest.Height, testForce, testRadius, i, testNumberThread);
+                            VignetteAsm(pixelArray, pixelArrayMask, width, height, testForce, testRadius, i, testNumberThread);
                         });
                         testStopwatchAsm.Stop();
 
                         testStopwatchCpp = Stopwatch.StartNew();
                         Parallel.For(0, numberThread, i =>
                         {
-                            VignetteCpp(pixelArray, pixelArrayMask, bitmapTest.Width, bitmapTest.Height, testForce, testRadius, i, testNumberThread);
+                            VignetteCpp(pixelArray, pixelArrayMask, width, height, testForce, testRadius, i, testNumberThread);
                         });
                         testStopwatchCpp.Stop();
 
