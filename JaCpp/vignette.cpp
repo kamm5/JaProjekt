@@ -14,7 +14,7 @@ void VignetteCpp(unsigned char* pixelArray, double* pixelArrayMask, int width, i
 	for (int i = numberThread * (width * height) / maxThread; i < (numberThread + 1) * (width * height) / maxThread; i++)
 	{
 		wynik = div(i, width);
-		pixelArrayMask[i] = 1 / (1 + pow(2.71828182845904, force * (((sqrt(pow(wynik.rem - centerX, 2) + pow(wynik.quot - centerY, 2))) / imageRadius) - vignetteRadius)));
+		pixelArrayMask[i] = 1 / (1 + exp(force * (((sqrt(pow(wynik.rem - centerX, 2) + pow(wynik.quot - centerY, 2))) / imageRadius) - vignetteRadius)));
 	}
 
 	for (int i = numberThread * (width * height * 3) / maxThread; i < (numberThread + 1) * (width * height * 3) / maxThread; ++i)

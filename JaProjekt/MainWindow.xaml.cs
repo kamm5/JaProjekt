@@ -190,8 +190,8 @@ namespace JaProjekt
             {
                 byte[] pixelArray = ConvertBitmapToRGBArray(bitmapTest);
                 double[] pixelArrayMask = new double[bitmapTest.Height * bitmapTest.Width];
-                int height = bitmapInput.Height;
-                int width = bitmapInput.Width;
+                int height = bitmapTest.Height;
+                int width = bitmapTest.Width;
 
                 using (StreamWriter writer = new StreamWriter("TestFile.txt"))
                 {

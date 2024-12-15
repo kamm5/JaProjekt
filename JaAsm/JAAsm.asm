@@ -115,7 +115,7 @@ loop_pixelMask_start:
 
 	loop_taylor_start:
 
-		cmp rbx, 20			; wykonuj do osiagniecia 20
+		cmp rbx, 18			; wykonuj do osiagniecia 18
 		je loop_taylor_end
 
 		mulsd xmm7, xmm5	; kolejna potega x
