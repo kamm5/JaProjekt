@@ -8,16 +8,16 @@ void VignetteCpp(unsigned char* pixelArray, double* pixelArrayMask, int width, i
 {
 	int centerX = width / 2;
 	int centerY = height / 2;
-	div_t wynik;
+	div_t pozycja;
 	double imageRadius = sqrt(pow(width, 2) + pow(height, 2));
 
-	for (int i = numberThread * (width * height) / maxThread; i < (numberThread + 1) * (width * height) / maxThread; i++)
+	for (int i = numberThread * width * height / maxThread; i < (numberThread + 1) * width * height / maxThread; i++)
 	{
-		wynik = div(i, width);
-		pixelArrayMask[i] = 1 / (1 + exp(force * (((sqrt(pow(wynik.rem - centerX, 2) + pow(wynik.quot - centerY, 2))) / imageRadius) - vignetteRadius)));
+		pozycja = div(i, width);
+		pixelArrayMask[i] = 1 / (1 + exp(force * (((sqrt(pow(pozycja.rem - centerX, 2) + pow(pozycja.quot - centerY, 2))) / imageRadius) - vignetteRadius)));
 	}
 
-	for (int i = numberThread * (width * height * 3) / maxThread; i < (numberThread + 1) * (width * height * 3) / maxThread; ++i)
+	for (int i = numberThread * width * height * 3 / maxThread; i < (numberThread + 1) * width * height * 3 / maxThread; i++)
 	{
 		pixelArray[i] *= pixelArrayMask[i / 3];
 	}
