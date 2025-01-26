@@ -69,22 +69,49 @@ namespace JaProjekt
                 double[] pixelArrayMask = new double[bitmapInput.Height * bitmapInput.Width];
                 int height = bitmapInput.Height;
                 int width = bitmapInput.Width;
+                Thread[] threads = new Thread[numberThread];
                 if (CheckBoxASM.IsChecked == true)
                 {
                     stopwatch = Stopwatch.StartNew();
-                    Parallel.For(0, numberThread, i =>
+                    /*Parallel.For(0, numberThread, i =>
                     {
                         VignetteAsm(pixelArray, pixelArrayMask, width, height, force, radius, i, numberThread);
-                    });
+                    });*/
+                    for (int i = 0; i < numberThread; i++)
+                    {
+                        int threadIndex = i;
+                        threads[i] = new Thread(() =>
+                        {
+                            VignetteAsm(pixelArray, pixelArrayMask, width, height, force, radius, threadIndex, numberThread);
+                        });
+                        threads[i].Start();
+                    }
+                    foreach (var thread in threads)
+                    {
+                        thread.Join();
+                    }
                     stopwatch.Stop();
                 }
                 else
                 {
                     stopwatch = Stopwatch.StartNew();
-                    Parallel.For(0, numberThread, i =>
+                    /*Parallel.For(0, numberThread, i =>
                     {
                         VignetteCpp(pixelArray, pixelArrayMask, width, height, force, radius, i, numberThread);
-                    });
+                    });*/
+                    for (int i = 0; i < numberThread; i++)
+                    {
+                        int threadIndex = i;
+                        threads[i] = new Thread(() =>
+                        {
+                            VignetteCpp(pixelArray, pixelArrayMask, width, height, force, radius, threadIndex, numberThread);
+                        });
+                        threads[i].Start();
+                    }
+                    foreach (var thread in threads)
+                    {
+                        thread.Join();
+                    }
                     stopwatch.Stop();
                 }
                 ExecutionTimeTextBlock.Text = $"{stopwatch.ElapsedMilliseconds} ms";
@@ -198,21 +225,34 @@ namespace JaProjekt
                     writer.WriteLine("testNumberThread StopwatchAsm(ms) StopwatchCpp(ms)");
                     for (int testNumberThread = 1; testNumberThread <= 64; testNumberThread++)
                     {
-                        testStopwatchAsm = Stopwatch.StartNew();
-                        Parallel.For(0, numberThread, i =>
+                        long minAsmTime = long.MaxValue;
+                        long minCppTime = long.MaxValue;
+                        for (int iteration = 0; iteration < 3; iteration++)
                         {
-                            VignetteAsm(pixelArray, pixelArrayMask, width, height, testForce, testRadius, i, testNumberThread);
-                        });
-                        testStopwatchAsm.Stop();
+                            testStopwatchAsm = Stopwatch.StartNew();
+                            Parallel.For(0, numberThread, i =>
+                            {
+                                VignetteAsm(pixelArray, pixelArrayMask, width, height, testForce, testRadius, i, testNumberThread);
+                            });
+                            testStopwatchAsm.Stop();
 
-                        testStopwatchCpp = Stopwatch.StartNew();
-                        Parallel.For(0, numberThread, i =>
-                        {
-                            VignetteCpp(pixelArray, pixelArrayMask, width, height, testForce, testRadius, i, testNumberThread);
-                        });
-                        testStopwatchCpp.Stop();
+                            if (testStopwatchAsm.ElapsedMilliseconds < minAsmTime)
+                            {
+                                minAsmTime = testStopwatchAsm.ElapsedMilliseconds;
+                            }
 
-                        writer.WriteLine($"{testNumberThread} {testStopwatchAsm.ElapsedMilliseconds} {testStopwatchCpp.ElapsedMilliseconds}");
+                            testStopwatchCpp = Stopwatch.StartNew();
+                            Parallel.For(0, numberThread, i =>
+                            {
+                                VignetteCpp(pixelArray, pixelArrayMask, width, height, testForce, testRadius, i, testNumberThread);
+                            });
+                            testStopwatchCpp.Stop();
+                            if (testStopwatchCpp.ElapsedMilliseconds < minCppTime)
+                            {
+                                minCppTime = testStopwatchCpp.ElapsedMilliseconds;
+                            }
+                        }
+                        writer.WriteLine($"{testNumberThread} {minAsmTime} {minCppTime}");
                     }
                 }
             }
