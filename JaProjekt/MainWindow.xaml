@@ -5,10 +5,12 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:JaProjekt"
         mc:Ignorable="d"
-        Title="MainWindow" Height="720" Width="1280">
+        Title="MainWindow" Height="720" Width="1280"
+        Background="#F0F0F0">
     <Grid>
         <Image Name="ImageViewer" HorizontalAlignment="Left" VerticalAlignment="Top" 
-               Margin="360,40,0,0" Width="800" Height="600" Stretch="Uniform">
+               Margin="360,40,0,0" Width="800" Height="600" Stretch="Uniform"
+               Effect="{DynamicResource DropShadowEffect}">
             <UIElement.RenderTransform>
                 <TransformGroup>
                     <ScaleTransform/>
@@ -21,11 +23,13 @@
 
         <Button Content="Wybierz plik" Width="150" Height="30" 
                 HorizontalAlignment="Left" VerticalAlignment="Top" 
-                Click="PickFileButton_Click" Margin="93,62,0,0"/>
+                Click="PickFileButton_Click" Margin="93,62,0,0"
+                Background="#5A9BD5" Foreground="White" FontWeight="Bold" />
 
         <Button Content="Zatwierdź" Width="150" Height="30" 
                 HorizontalAlignment="Left" VerticalAlignment="Top" 
-                Click="ConfirmButton_Click" Margin="93,258,0,0"/>
+                Click="ConfirmButton_Click" Margin="93,258,0,0"
+                Background="#70AD47" Foreground="White" FontWeight="Bold" />
 
         <Slider x:Name="forceControl"
                 Minimum="0" 
@@ -35,13 +39,20 @@
                 IsSnapToTickEnabled="True"
                 HorizontalAlignment="Left"
                 VerticalAlignment="Top"
-                Width="200" Margin="98,105,0,0" />
+                Width="200" Margin="108,105,0,0">
+            <Slider.Background>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                    <GradientStop Color="#5A9BD5" Offset="0"/>
+                    <GradientStop Color="#70AD47" Offset="1"/>
+                </LinearGradientBrush>
+            </Slider.Background>
+        </Slider>
 
         <TextBlock Text="{Binding ElementName=forceControl, Path=Value, StringFormat=F2}" 
                    VerticalAlignment="Top"
                    HorizontalAlignment="Left"
-                   Margin="303,103,0,0" 
-                   FontSize="16" />
+                   Margin="313,103,0,0" 
+                   FontSize="16" FontWeight="Bold" Foreground="#333333" />
 
         <Slider x:Name="radiusControl"
                 Minimum="0" 
@@ -51,13 +62,20 @@
                 IsSnapToTickEnabled="True"
                 HorizontalAlignment="Left"
                 VerticalAlignment="Top"
-                Width="200" Margin="98,150,0,0" />
+                Width="200" Margin="108,150,0,0">
+            <Slider.Background>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                    <GradientStop Color="#5A9BD5" Offset="0"/>
+                    <GradientStop Color="#70AD47" Offset="1"/>
+                </LinearGradientBrush>
+            </Slider.Background>
+        </Slider>
 
         <TextBlock Text="{Binding ElementName=radiusControl, Path=Value, StringFormat=F2}" 
                    VerticalAlignment="Top"
                    HorizontalAlignment="Left"
-                   Margin="303,148,0,0" 
-                   FontSize="16" />
+                   Margin="313,148,0,0" 
+                   FontSize="16" FontWeight="Bold" Foreground="#333333" />
 
         <Slider x:Name="threadControl"
                 Minimum="1" 
@@ -67,27 +85,35 @@
                 IsSnapToTickEnabled="True"
                 HorizontalAlignment="Left"
                 VerticalAlignment="Top"
-                Width="200" Margin="98,195,0,0" />
+                Width="200" Margin="108,195,0,0">
+            <Slider.Background>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                    <GradientStop Color="#5A9BD5" Offset="0"/>
+                    <GradientStop Color="#70AD47" Offset="1"/>
+                </LinearGradientBrush>
+            </Slider.Background>
+        </Slider>
 
         <TextBlock Text="{Binding ElementName=threadControl, Path=Value}" 
                    VerticalAlignment="Top"
                    HorizontalAlignment="Left"
-                   Margin="303,193,0,0" 
-                   FontSize="16" />
+                   Margin="313,193,0,0" 
+                   FontSize="16" FontWeight="Bold" Foreground="#333333" />
 
         <StackPanel HorizontalAlignment="Left" VerticalAlignment="Top" Margin="83,335,0,0">
-            <TextBlock Text="Czas wykonania funkcji:" FontSize="16" Margin="0,0,0,10"/>
-            <TextBlock x:Name="ExecutionTimeTextBlock" FontSize="24" FontWeight="Bold" HorizontalAlignment="Center"/>
+            <TextBlock Text="Czas wykonania funkcji:" FontSize="16" Margin="0,0,0,10" FontWeight="Bold" Foreground="#333333"/>
+            <TextBlock x:Name="ExecutionTimeTextBlock" FontSize="24" FontWeight="Bold" HorizontalAlignment="Center" Foreground="#C00000"/>
         </StackPanel>
-        <Label Content="Siła" HorizontalAlignment="Left" Margin="70,101,0,0" VerticalAlignment="Top"/>
-        <Label Content="Zasięg" HorizontalAlignment="Left" Margin="54,146,0,0" VerticalAlignment="Top"/>
-        <Label Content="Liczba wątków" HorizontalAlignment="Left" Margin="12,191,0,0" VerticalAlignment="Top"/>
-        <CheckBox x:Name="CheckBoxASM" Checked="CheckBox_Checked" Content="ASM" HorizontalAlignment="Left" Margin="93,229,0,0" VerticalAlignment="Top"/>
-        <CheckBox x:Name="CheckBoxCPP" Checked="CheckBox_Checked" Content="C++" HorizontalAlignment="Left" Margin="199,229,0,0" VerticalAlignment="Top"/>
+        <Label Content="Siła" HorizontalAlignment="Left" Margin="70,101,0,0" VerticalAlignment="Top" FontWeight="Bold" Foreground="#333333"/>
+        <Label Content="Zasięg" HorizontalAlignment="Left" Margin="54,146,0,0" VerticalAlignment="Top" FontWeight="Bold" Foreground="#333333"/>
+        <Label Content="Liczba wątków" HorizontalAlignment="Left" Margin="12,191,0,0" VerticalAlignment="Top" FontWeight="Bold" Foreground="#333333"/>
+        <CheckBox x:Name="CheckBoxASM" Checked="CheckBox_Checked" Content="ASM" HorizontalAlignment="Left" Margin="93,229,0,0" VerticalAlignment="Top" FontWeight="Bold" Foreground="#333333"/>
+        <CheckBox x:Name="CheckBoxCPP" Checked="CheckBox_Checked" Content="C++" HorizontalAlignment="Left" Margin="199,229,0,0" VerticalAlignment="Top" FontWeight="Bold" Foreground="#333333"/>
 
         <Button Content="AutoTest" Width="150" Height="30" 
         HorizontalAlignment="Left" VerticalAlignment="Top" 
-        Click="AutoTest_Click" Margin="93,430,0,0"/>
-        
+        Click="AutoTest_Click" Margin="93,430,0,0"
+        Background="#ED7D31" Foreground="White" FontWeight="Bold"/>
+
     </Grid>
 </Window>
