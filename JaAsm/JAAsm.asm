@@ -21,7 +21,7 @@
 
 VignetteAsm proc
 
-				;zapisanie rejestrow
+; Zapisanie rejestrow
 push r10
 push r11
 push r12
@@ -41,6 +41,7 @@ movsd xmm1, qword ptr [rsp + 8*18]
 movsd xmm0, qword ptr [rsp + 8*17]	; wczytywanie argumentow
 
 
+; Obliczenie œrodka obrazu
 mov rdx, 0			; int centerX = width / 2;
 mov rax, r8
 mov rbx, 2
@@ -52,7 +53,7 @@ mov rax, r9
 div rbx
 mov r13, rax
 
-					; Oblicz imageRadius
+; Oblicz imageRadius które odpowiada za ustalenie promienia obrazu potrzebnego do winietowania
 cvtsi2sd xmm2, r8	; konwersja na double
 cvtsi2sd xmm3, r9
 mulsd xmm2, xmm2	; width^2
@@ -60,6 +61,7 @@ mulsd xmm3, xmm3	; height^2
 addsd xmm2, xmm3	; width^2+height^2
 sqrtsd xmm2, xmm2	; imageRadius = sqrt(width^2+height^2)
 
+; Obliczanie wartoœci pêtli która odpowiada za generowanie maski, tak aby zosta³a odpowiednio rozplanowana pomiêdzy w¹tkami
 					; Oblicz pocz¹tkow¹ wartoœæ pêtli
 mov rax, R8			; rax = width
 imul rax, R9		; rax = width * height
@@ -85,11 +87,13 @@ push r14
 cvtsi2sd xmm3, r12		; centerX w xmm3
 cvtsi2sd xmm4, r13		; centerY w xmm4
 
+; Rozpoczêcie pêtli do obliczania maski
 loop_pixelMask_start:
 
 	cmp rsi, rdi
 	jge loop_pixelMask_end
 
+	; Operacja dzielenia razem z reszt¹ w celu ustalenia aktualnej pozycji na masce
 						; wynik = div(i, width)
 	mov rax, rsi		; dzielenie z reszta i
 	xor rdx, rdx
@@ -97,6 +101,7 @@ loop_pixelMask_start:
 	cvtsi2sd xmm5, rax	; quot
 	cvtsi2sd xmm6, rdx	; rem
 
+	; Obliczanie wartoœci maski
 	subsd xmm6, xmm3	; xmm6 = wynik.rem - centerX
 	subsd xmm5, xmm4	; xmm5 = wynik.quot - centerY
 	mulsd xmm6, xmm6	; xmm6 = (wynik.rem - centerX)^2
@@ -107,6 +112,7 @@ loop_pixelMask_start:
 	subsd xmm5, xmm1	; xmm5 = ((sqrt(pow(wynik.rem - centerX, 2) + pow(wynik.quot - centerY, 2))) / imageRadius) - vignetteRadius
 	mulsd xmm5, xmm0	; xmm5 = force * (((sqrt(pow(wynik.rem - centerX, 2) + pow(wynik.quot - centerY, 2))) / imageRadius) - vignetteRadius)
 
+	; Rozpoczêcie obliczania szeregu Taylora z "x" potrzebnego do obliczeia wartoœci maski
 	mov rax, 1
 	mov rbx, 2
 	movsd xmm6, [one]	; 1 wykonanie Taylora (1)
@@ -129,13 +135,15 @@ loop_pixelMask_start:
 		jmp loop_taylor_start
 
 	loop_taylor_end:
-							; obsluzenie bledu Taylora
+	
+	; Obsluzenie bledu Taylora poniewa¿ szereg taylora jest wartoœci¹ przybli¿on¹ i istnieje ryzyko wyjœcia poza zakres co skoñczy³o by siê przeskoczeniem wartoœci pixela np. z 255 do 0
 	movsd xmm7, [zero]
 	ucomisd xmm6, xmm7		; sprawdz czy xmm6 < 0, jesli tak to xmm6 = 0
 	jae skip_set_to_zero
 	movsd xmm6, xmm7
 	skip_set_to_zero:
 
+	; Kontynuacja obliczania maski
 	addsd xmm6, [one]	; xmm6 = 1 + pow(2.71828182845904, force * (((sqrt(pow(wynik.rem - centerX, 2) + pow(wynik.quot - centerY, 2))) / imageRadius) - vignetteRadius))
 	movsd xmm5, [one]
 	divsd xmm5, xmm6	; xmm5 = 1 / (1 + pow(2.71828182845904, force * (((sqrt(pow(wynik.rem - centerX, 2) + pow(wynik.quot - centerY, 2))) / imageRadius) - vignetteRadius)))
@@ -143,10 +151,11 @@ loop_pixelMask_start:
 	movsd qword ptr [r14 + rsi * 8], xmm5
 
 	inc rsi
-	jmp loop_pixelMask_start
+	jmp loop_pixelMask_start ; kontynuowanie pêtli
 
 loop_pixelMask_end:
 
+; Obliczanie wartoœci pêtli która odpowiada za mno¿enie wartoœci pixeli przez maskê, tak aby zosta³a odpowiednio rozplanowana pomiêdzy w¹tkami
 					; Oblicz pocz¹tkow¹ wartoœæ pêtli
 mov rax, R8			; rax = width
 imul rax, R9		; rax = width * height
@@ -167,6 +176,7 @@ imul rax, R10		; rax = (numberThread + 1) * ((width * height) / maxThread)
 dec R10				; Przywróæ R10
 mov rdi, rax		; rdi = koñcowa wartoœæ pêtli
 
+; Rozpoczêcie pêtli odpowiedzialnej za mno¿enie wartoœci pixeli przez maskê
 loop_setPixel_start:
 
 	cmp rsi, rdi
@@ -189,7 +199,7 @@ loop_setPixel_start:
 
 loop_setPixel_end:
 
-			; przywrocenie rejestrow
+; Przywrocenie rejestrow
 pop rdx
 pop rcx
 pop rbx
