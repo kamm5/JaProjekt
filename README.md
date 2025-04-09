@@ -45,3 +45,7 @@ Efekt winiety realizowany jest poprzez modyfikację jasności pikseli w zależno
    - przy użyciu szeregu Taylora (dla ASM)
    - przy użyciu funkcji `exp(x)` (dla C++)
 6. Zastosowanie maski jako mnożnika wartości piksela
+
+## 🖼️ Efekt winiety – obraz przed i po
+![Before](screenshots/screenshot1.png)
+![After](screenshots/screenshot2.png)
